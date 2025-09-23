@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChatLayout } from "@/components/chat-layout";
 import { Button } from "@/components/ui/button";
@@ -12,12 +12,29 @@ import {
 } from "@/components/ui/tooltip";
 import { Copy, Send } from "lucide-react";
 import Link from "next/link";
+import {
+  getCurrentLanguage,
+  getTranslation,
+  type Language,
+  type TranslationKey,
+} from "@/lib/i18n";
 
 export default function HomePage() {
   const [question, setQuestion] = useState("");
   const [generatedLink, setGeneratedLink] = useState("");
   const [copied, setCopied] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [language, setLanguage] = useState<Language>("en");
+
+  // Initialize language from localStorage
+  useEffect(() => {
+    setLanguage(getCurrentLanguage());
+  }, []);
+
+  // Translation helper
+  const t = (key: TranslationKey) => {
+    return getTranslation(language, key);
+  };
 
   const generateLink = async () => {
     if (!question.trim()) {
@@ -68,7 +85,7 @@ export default function HomePage() {
                 transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
                 className="text-4xl font-bold tracking-tight"
               >
-                Let Me AI That For You
+                {t("title")}
               </motion.h1>
               <motion.p
                 initial={{ opacity: 0 }}
@@ -76,8 +93,7 @@ export default function HomePage() {
                 transition={{ delay: 0.4 }}
                 className="text-muted-foreground"
               >
-                Create a shareable link that demonstrates how to ask AI
-                questions
+                {t("description")}
               </motion.p>
             </motion.div>
 
@@ -93,7 +109,7 @@ export default function HomePage() {
                 transition={{ type: "spring", stiffness: 300 }}
               >
                 <Textarea
-                  placeholder="Ask me anything..."
+                  placeholder={t("placeholder")}
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
                   className="min-h-[100px] resize-none transition-all duration-200"
@@ -128,12 +144,12 @@ export default function HomePage() {
                           }}
                           className="w-4 h-4 mr-2 rounded-full border-2 border-transparent border-t-current"
                         />
-                        Generating...
+                        {t("generating")}
                       </>
                     ) : (
                       <>
                         <Send className="w-4 h-4 mr-2" />
-                        Generate Link
+                        {t("generateLink")}
                       </>
                     )}
                   </Button>
@@ -170,7 +186,7 @@ export default function HomePage() {
                         transition={{ delay: 0.3 }}
                         className="text-lg font-semibold text-foreground mb-2"
                       >
-                        Generated Link:
+                        {t("linkGenerated")}
                       </motion.h3>
                       <motion.div
                         initial={{ scale: 0.95, opacity: 0 }}
@@ -215,14 +231,14 @@ export default function HomePage() {
                               >
                                 <Copy className="w-4 h-4 mr-2" />
                               </motion.div>
-                              {copied ? "Copied!" : "Copy"}
+                              {copied ? t("copied") : t("copyLink")}
                             </Button>
                           </motion.div>
                         </TooltipTrigger>
                         <TooltipContent>
                           {copied
-                            ? "Copied to clipboard!"
-                            : "Copy link to clipboard"}
+                            ? t("copiedToClipboard")
+                            : t("copyLinkToClipboard")}
                         </TooltipContent>
                       </Tooltip>
 
@@ -236,7 +252,7 @@ export default function HomePage() {
                             target="_blank"
                             rel="noopener noreferrer"
                           >
-                            Preview Animation
+                            {t("previewAnimation")}
                             <motion.svg
                               className="w-4 h-4 ml-2"
                               fill="none"
@@ -266,7 +282,7 @@ export default function HomePage() {
         {/* Model info */}
         <div className="border-t p-4">
           <div className="text-center text-sm text-muted-foreground">
-            &copy; 2025 Let Me AI That For You • Shift+Enter for new line
+            {t("modelInfo")}
           </div>
         </div>
       </div>

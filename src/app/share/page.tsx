@@ -14,6 +14,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Send } from "lucide-react";
+import {
+  getCurrentLanguage,
+  getTranslation,
+  type Language,
+  type TranslationKey,
+} from "@/lib/i18n";
 
 export default function SharePage() {
   const searchParams = useSearchParams();
@@ -24,13 +30,24 @@ export default function SharePage() {
   const [isEditable, setIsEditable] = useState(false);
   const [currentText, setCurrentText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [language, setLanguage] = useState<Language>("en");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const sendButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Translation helper
+  const t = (key: TranslationKey) => {
+    return getTranslation(language, key);
+  };
 
   // Get query parameters
   const q = searchParams.get("q") || "";
   const theme = searchParams.get("theme") || "auto";
   const speed = parseFloat(searchParams.get("s") || "1.0");
+
+  // Initialize language from localStorage
+  useEffect(() => {
+    setLanguage(getCurrentLanguage());
+  }, []);
 
   useEffect(() => {
     // Validate question
@@ -219,7 +236,7 @@ export default function SharePage() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
               >
-                ChatGPT
+                {t("chatgpt")}
               </motion.h2>
               <motion.p
                 className="text-muted-foreground"
@@ -227,7 +244,7 @@ export default function SharePage() {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.4, delay: 0.6 }}
               >
-                How can I help you today?
+                {t("howCanIHelp")}
               </motion.p>
             </motion.div>
           </div>
@@ -257,7 +274,7 @@ export default function SharePage() {
                   <Textarea
                     ref={textareaRef}
                     id="composer-textarea"
-                    placeholder={showTypewriter ? "" : "Message ChatGPT..."}
+                    placeholder={showTypewriter ? "" : t("messageChatGPT")}
                     className={`min-h-[52px] max-h-32 resize-none pr-12 transition-all ${
                       isTyping
                         ? "ring-2 ring-blue-500/20 border-blue-500/50"
@@ -325,7 +342,7 @@ export default function SharePage() {
                 >
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                    <span>Click here to continue</span>
+                    <span>{t("clickHere")}</span>
                   </div>
                 </TooltipContent>
               </Tooltip>
@@ -337,7 +354,7 @@ export default function SharePage() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.4, delay: 1.0 }}
             >
-              Shift+Enter for new line
+              {t("shiftEnterNewLine")}
             </motion.div>
           </div>
         </motion.div>
