@@ -1,103 +1,146 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState } from "react";
+import { ChatLayout } from "@/components/chat-layout";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Copy, Send } from "lucide-react";
+import Link from "next/link";
+
+export default function HomePage() {
+  const [question, setQuestion] = useState("");
+  const [generatedLink, setGeneratedLink] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  const generateLink = () => {
+    if (!question.trim()) {
+      return;
+    }
+
+    const params = new URLSearchParams({
+      q: question,
+    });
+
+    const link = `${window.location.origin}/share?${params.toString()}`;
+    setGeneratedLink(link);
+  };
+
+  const copyToClipboard = async () => {
+    if (!generatedLink) return;
+
+    try {
+      await navigator.clipboard.writeText(generatedLink);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy: ", err);
+    }
+  };
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <ChatLayout>
+      <div className="flex flex-col h-full">
+        {/* Messages area */}
+        <div className="flex-1 flex flex-col items-center justify-center p-8">
+          <div className="w-full max-w-2xl space-y-6">
+            <div className="text-center space-y-2">
+              <h1 className="text-4xl font-bold tracking-tight">
+                Let Me AI That For You
+              </h1>
+              <p className="text-muted-foreground">
+                Create a shareable link that demonstrates how to ask AI
+                questions
+              </p>
+            </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            {/* Question input */}
+            <div className="space-y-4">
+              <Textarea
+                placeholder="Ask me anything..."
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                className="min-h-[100px] resize-none"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    generateLink();
+                  }
+                }}
+              />
+
+              <div className="flex gap-2">
+                <Button
+                  onClick={generateLink}
+                  disabled={!question.trim()}
+                  className="flex-1"
+                >
+                  <Send className="w-4 h-4 mr-2" />
+                  Generate Link
+                </Button>
+              </div>
+            </div>
+
+            {/* Generated link display */}
+            {generatedLink && (
+              <div className="p-4 rounded-xl shadow-md border border-muted">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-base font-semibold text-primary">
+                    Generated Link
+                  </span>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={copyToClipboard}
+                        className={
+                          "border-2 " +
+                          (copied
+                            ? "bg-green-100 dark:bg-green-900 text-white"
+                            : "")
+                        }
+                        aria-label="Copy link"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {copied ? "Copied!" : "Copy link"}
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="text"
+                    value={generatedLink}
+                    readOnly
+                    className="flex-1 text-sm font-mono break-all text-muted-foreground select-all border-2 border-input bg-background px-3 py-2 rounded-md"
+                  />
+                  <Link
+                    href={generatedLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 text-sm font-medium whitespace-nowrap border-2 border-blue-600 px-3 py-2 rounded-md hover:bg-blue-50 hover:underline"
+                  >
+                    Open
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+
+        {/* Model info */}
+        <div className="border-t p-4">
+          <div className="text-center text-sm text-muted-foreground">
+            &copy; 2025 Let Me AI That For You • Shift+Enter for new line
+          </div>
+        </div>
+      </div>
+    </ChatLayout>
   );
 }
