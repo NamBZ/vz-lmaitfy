@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import { ChatLayout } from "@/components/chat-layout";
 import { FakeCursor } from "@/components/fake-cursor";
 import { Typewriter } from "@/components/typewriter";
@@ -22,6 +23,7 @@ export default function SharePage() {
   const [showTooltip, setShowTooltip] = useState(false);
   const [isEditable, setIsEditable] = useState(false);
   const [currentText, setCurrentText] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const sendButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -91,6 +93,7 @@ export default function SharePage() {
       // Step 4: Start typewriter effect
       setTimeout(() => {
         setShowTypewriter(true);
+        setIsTyping(true);
       }, 2200);
     };
 
@@ -98,6 +101,8 @@ export default function SharePage() {
   }, [q, theme]);
 
   const handleTypewriterComplete = () => {
+    setIsTyping(false);
+
     // Step 5: Move cursor to send button
     setTimeout(() => {
       if (sendButtonRef.current) {
@@ -179,71 +184,164 @@ export default function SharePage() {
 
   return (
     <ChatLayout>
-      <FakeCursor visible={showCursor} />
+      <AnimatePresence>
+        {showCursor && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.5 }}
+            transition={{ duration: 0.3 }}
+          >
+            <FakeCursor visible={showCursor} />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <div className="flex flex-col h-full">
+      <motion.div
+        className="flex flex-col h-full"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
         {/* Messages area with placeholder messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           <div className="max-w-2xl mx-auto space-y-4">
             {/* Placeholder messages to look like ChatGPT */}
-            <div className="text-center py-8">
-              <h2 className="text-2xl font-bold mb-2">ChatGPT</h2>
-              <p className="text-muted-foreground">How can I help you today?</p>
-            </div>
+            <motion.div
+              className="text-center py-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              <motion.h2
+                className="text-2xl font-bold mb-2"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
+                ChatGPT
+              </motion.h2>
+              <motion.p
+                className="text-muted-foreground"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.4, delay: 0.6 }}
+              >
+                How can I help you today?
+              </motion.p>
+            </motion.div>
           </div>
         </div>
 
         {/* Composer area */}
-        <div className="border-t p-4">
+        <motion.div
+          className="border-t p-4"
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+        >
           <div className="max-w-2xl mx-auto">
-            <div className="flex items-end gap-2">
+            <motion.div
+              className="flex items-end gap-2"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+            >
               <div className="flex-1 relative">
-                <Textarea
-                  ref={textareaRef}
-                  id="composer-textarea"
-                  placeholder={showTypewriter ? "" : "Message ChatGPT..."}
-                  className="min-h-[52px] max-h-32 resize-none pr-12 transition-all"
-                  readOnly={!isEditable}
-                  onChange={handleTextareaChange}
-                  value={isEditable ? currentText : ""}
-                />
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.7 }}
+                  whileHover={{ scale: 1.02 }}
+                >
+                  <Textarea
+                    ref={textareaRef}
+                    id="composer-textarea"
+                    placeholder={showTypewriter ? "" : "Message ChatGPT..."}
+                    className={`min-h-[52px] max-h-32 resize-none pr-12 transition-all ${
+                      isTyping
+                        ? "ring-2 ring-blue-500/20 border-blue-500/50"
+                        : ""
+                    }`}
+                    readOnly={!isEditable}
+                    onChange={handleTextareaChange}
+                    value={isEditable ? currentText : ""}
+                  />
+                </motion.div>
                 {showTypewriter && !isEditable && (
-                  <div className="absolute inset-0 p-3 pointer-events-none">
+                  <motion.div
+                    className="absolute inset-0 p-3 pointer-events-none"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                  >
                     <Typewriter
                       text={q}
                       speed={speed}
                       onComplete={handleTypewriterComplete}
                       onUpdate={handleTypewriterUpdate}
                     />
-                  </div>
+                  </motion.div>
                 )}
               </div>
 
               <Tooltip open={showTooltip && animationComplete}>
-                <TooltipTrigger asChild>
-                  <Button
-                    ref={sendButtonRef}
-                    id="composer-send"
-                    size="icon"
-                    onClick={handleSendClick}
-                    className="transition-transform"
-                    disabled={!animationComplete}
+                <TooltipTrigger asChild className="bg-primary">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.4, delay: 0.8 }}
+                    whileHover={{ scale: animationComplete ? 1.05 : 1 }}
+                    whileTap={{ scale: animationComplete ? 0.95 : 1 }}
                   >
-                    <Send className="w-4 h-4" />
-                  </Button>
+                    <Button
+                      ref={sendButtonRef}
+                      id="composer-send"
+                      size="icon"
+                      onClick={handleSendClick}
+                      className={`transition-all ${
+                        !animationComplete
+                          ? "opacity-60 cursor-not-allowed"
+                          : "hover:shadow-lg"
+                      }`}
+                      disabled={!animationComplete}
+                    >
+                      <motion.div
+                        animate={isTyping ? { rotate: 360 } : { rotate: 0 }}
+                        transition={{
+                          duration: 2,
+                          repeat: isTyping ? Infinity : 0,
+                          ease: "linear",
+                        }}
+                      >
+                        <Send className="w-4 h-4" />
+                      </motion.div>
+                    </Button>
+                  </motion.div>
                 </TooltipTrigger>
-                <TooltipContent className="bg-background border border-border shadow-lg">
-                  <p>Click here</p>
+                <TooltipContent
+                  side="top"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0 shadow-xl rounded-lg px-4 py-2 text-sm font-medium"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                    <span>Click here to continue</span>
+                  </div>
                 </TooltipContent>
               </Tooltip>
-            </div>
+            </motion.div>
 
-            <div className="text-xs text-muted-foreground mt-2 text-center">
+            <motion.div
+              className="text-xs text-muted-foreground mt-2 text-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4, delay: 1.0 }}
+            >
               Shift+Enter for new line
-            </div>
+            </motion.div>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </ChatLayout>
   );
 }

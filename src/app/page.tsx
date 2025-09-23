@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { ChatLayout } from "@/components/chat-layout";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,11 +17,18 @@ export default function HomePage() {
   const [question, setQuestion] = useState("");
   const [generatedLink, setGeneratedLink] = useState("");
   const [copied, setCopied] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
-  const generateLink = () => {
+  const generateLink = async () => {
     if (!question.trim()) {
       return;
     }
+
+    setIsGenerating(true);
+    setGeneratedLink(""); // Clear previous link
+
+    // Simulate generation time
+    await new Promise((resolve) => setTimeout(resolve, 1500));
 
     const params = new URLSearchParams({
       q: question,
@@ -28,6 +36,7 @@ export default function HomePage() {
 
     const link = `${window.location.origin}/share?${params.toString()}`;
     setGeneratedLink(link);
+    setIsGenerating(false);
   };
 
   const copyToClipboard = async () => {
@@ -47,90 +56,210 @@ export default function HomePage() {
         {/* Messages area */}
         <div className="flex-1 flex flex-col items-center justify-center p-8">
           <div className="w-full max-w-2xl space-y-6">
-            <div className="text-center space-y-2">
-              <h1 className="text-4xl font-bold tracking-tight">
+            <motion.div
+              initial={{ opacity: 0, y: -30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              className="text-center space-y-2"
+            >
+              <motion.h1
+                initial={{ scale: 0.9 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                className="text-4xl font-bold tracking-tight"
+              >
                 Let Me AI That For You
-              </h1>
-              <p className="text-muted-foreground">
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="text-muted-foreground"
+              >
                 Create a shareable link that demonstrates how to ask AI
                 questions
-              </p>
-            </div>
+              </motion.p>
+            </motion.div>
 
             {/* Question input */}
-            <div className="space-y-4">
-              <Textarea
-                placeholder="Ask me anything..."
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                className="min-h-[100px] resize-none"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    generateLink();
-                  }
-                }}
-              />
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+              className="space-y-4"
+            >
+              <motion.div
+                whileFocus={{ scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <Textarea
+                  placeholder="Ask me anything..."
+                  value={question}
+                  onChange={(e) => setQuestion(e.target.value)}
+                  className="min-h-[100px] resize-none transition-all duration-200"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      generateLink();
+                    }
+                  }}
+                />
+              </motion.div>
 
               <div className="flex gap-2">
-                <Button
-                  onClick={generateLink}
-                  disabled={!question.trim()}
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   className="flex-1"
                 >
-                  <Send className="w-4 h-4 mr-2" />
-                  Generate Link
-                </Button>
-              </div>
-            </div>
-
-            {/* Generated link display */}
-            {generatedLink && (
-              <div className="p-4 rounded-xl shadow-md border border-muted">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-base font-semibold text-primary">
-                    Generated Link
-                  </span>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={copyToClipboard}
-                        className={
-                          "border-2 " +
-                          (copied
-                            ? "bg-green-100 dark:bg-green-900 text-white"
-                            : "")
-                        }
-                        aria-label="Copy link"
-                      >
-                        <Copy className="w-4 h-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      {copied ? "Copied!" : "Copy link"}
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
-                <div className="flex gap-2 items-center">
-                  <input
-                    type="text"
-                    value={generatedLink}
-                    readOnly
-                    className="flex-1 text-sm font-mono break-all text-muted-foreground select-all border-2 border-input bg-background px-3 py-2 rounded-md"
-                  />
-                  <Link
-                    href={generatedLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 text-sm font-medium whitespace-nowrap border-2 border-blue-600 px-3 py-2 rounded-md hover:bg-blue-50 hover:underline"
+                  <Button
+                    onClick={generateLink}
+                    disabled={!question.trim() || isGenerating}
+                    className="flex-1 w-full"
                   >
-                    Open
-                  </Link>
-                </div>
+                    {isGenerating ? (
+                      <>
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{
+                            duration: 1,
+                            repeat: Infinity,
+                            ease: "linear",
+                          }}
+                          className="w-4 h-4 mr-2 rounded-full border-2 border-transparent border-t-current"
+                        />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4 mr-2" />
+                        Generate Link
+                      </>
+                    )}
+                  </Button>
+                </motion.div>
               </div>
-            )}
+            </motion.div>
+
+            {/* Animation container for loading and result */}
+            <AnimatePresence mode="wait">
+              {generatedLink && !isGenerating && (
+                <motion.div
+                  key="result"
+                  initial={{ opacity: 0, y: 30, scale: 0.8 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -30, scale: 0.8 }}
+                  transition={{
+                    duration: 0.5,
+                    ease: "easeOut",
+                    type: "spring",
+                    stiffness: 100,
+                  }}
+                  className="p-6 rounded-xl shadow-md border border-muted bg-background"
+                >
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.2, duration: 0.3 }}
+                    className="space-y-4"
+                  >
+                    <div className="text-center">
+                      <motion.h3
+                        initial={{ y: -10, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.3 }}
+                        className="text-lg font-semibold text-foreground mb-2"
+                      >
+                        Generated Link:
+                      </motion.h3>
+                      <motion.div
+                        initial={{ scale: 0.95, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{
+                          delay: 0.4,
+                          type: "spring",
+                          stiffness: 200,
+                        }}
+                        className="p-4 bg-muted rounded-lg border"
+                      >
+                        <div className="text-sm font-mono break-all text-foreground select-all">
+                          {generatedLink}
+                        </div>
+                      </motion.div>
+                    </div>
+
+                    <motion.div
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 0.5, duration: 0.3 }}
+                      className="flex gap-3 justify-center"
+                    >
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <motion.div
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <Button
+                              onClick={copyToClipboard}
+                              className={
+                                "px-6 py-2 transition-all duration-200 " +
+                                (copied
+                                  ? "bg-green-500 hover:bg-green-600 text-white"
+                                  : "")
+                              }
+                            >
+                              <motion.div
+                                animate={copied ? { scale: [1, 1.2, 1] } : {}}
+                                transition={{ duration: 0.3 }}
+                              >
+                                <Copy className="w-4 h-4 mr-2" />
+                              </motion.div>
+                              {copied ? "Copied!" : "Copy"}
+                            </Button>
+                          </motion.div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          {copied
+                            ? "Copied to clipboard!"
+                            : "Copy link to clipboard"}
+                        </TooltipContent>
+                      </Tooltip>
+
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Button asChild variant="outline" className="px-6 py-2">
+                          <Link
+                            href={generatedLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Preview Animation
+                            <motion.svg
+                              className="w-4 h-4 ml-2"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              whileHover={{ x: 2 }}
+                              transition={{ type: "spring", stiffness: 400 }}
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                              />
+                            </motion.svg>
+                          </Link>
+                        </Button>
+                      </motion.div>
+                    </motion.div>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
 
