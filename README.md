@@ -32,7 +32,7 @@ A fun web application built with Next.js 14 that creates shareable links demonst
 1. Clone the repository:
 
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/NamBZ/vz-lmaitfy
    cd lmaitfy
    ```
 
@@ -117,7 +117,17 @@ npm run lint
 
 ## Deployment
 
-### Vercel (Recommended)
+### GitHub Pages (Automatic)
+
+This project includes GitHub Actions for automatic deployment to GitHub Pages:
+
+1. **Setup**: Enable GitHub Pages with "GitHub Actions" as source in repository settings
+2. **Deploy**: Create a new release on GitHub to trigger automatic deployment
+3. **Access**: Your site will be available at `https://NamBZ.github.io/vz-lmaitfy`
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions.
+
+### Vercel (Alternative)
 
 1. Push your code to GitHub
 2. Connect your repository to Vercel
@@ -126,8 +136,8 @@ npm run lint
 ### Manual Deployment
 
 1. Build the project: `npm run build`
-2. Upload the `.next` folder and other required files to your server
-3. Install dependencies: `npm install --production`
+2. Upload the `out` folder to your static hosting provider
+3. The build outputs a static site in the `out` directory
 4. Start the server: `npm start`
 
 ## Environment Variables
