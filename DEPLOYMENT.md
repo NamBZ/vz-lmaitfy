@@ -43,8 +43,10 @@ To test the static export locally:
 
 ```bash
 npm run build
-npx serve out
+npx serve dist
 ```
+
+Note: The build process creates static files in the `dist` directory.
 
 ## Configuration Files
 

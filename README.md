@@ -136,9 +136,8 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions.
 ### Manual Deployment
 
 1. Build the project: `npm run build`
-2. Upload the `out` folder to your static hosting provider
-3. The build outputs a static site in the `out` directory
-4. Start the server: `npm start`
+2. Upload the `dist` folder to your static hosting provider
+3. The build outputs a static site in the `dist` directory
 
 ## Environment Variables
 

@@ -51,13 +51,13 @@ jobs:
         run: |
           echo "Contents of current directory:"
           ls -la
-          echo "Contents of out directory:"
-          ls -la out/
+          echo "Contents of dist directory:"
+          ls -la dist/
         
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./out
+          path: ./dist
 
   # Deployment job
   deploy:
