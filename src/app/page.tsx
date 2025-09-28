@@ -201,7 +201,7 @@ export default function HomePage() {
                     type: "spring",
                     stiffness: 100,
                   }}
-                  className="p-6 rounded-xl shadow-md border border-muted bg-background"
+                  className="p-4 sm:p-6 rounded-xl shadow-md border border-muted bg-background"
                 >
                   <motion.div
                     initial={{ opacity: 0 }}
@@ -226,9 +226,9 @@ export default function HomePage() {
                           type: "spring",
                           stiffness: 200,
                         }}
-                        className="p-4 bg-muted rounded-lg border"
+                        className="p-3 sm:p-4 bg-muted rounded-lg border"
                       >
-                        <div className="text-sm font-mono break-all text-foreground select-all">
+                        <div className="text-xs sm:text-sm font-mono break-all text-foreground select-all">
                           {generatedLink}
                         </div>
                       </motion.div>
@@ -238,18 +238,19 @@ export default function HomePage() {
                       initial={{ y: 20, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       transition={{ delay: 0.5, duration: 0.3 }}
-                      className="flex gap-3 justify-center"
+                      className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center"
                     >
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <motion.div
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
+                            className="flex-1 sm:flex-none"
                           >
                             <Button
                               onClick={copyToClipboard}
                               className={
-                                "px-6 py-2 transition-all duration-200 " +
+                                "w-full sm:w-auto px-4 sm:px-6 py-2 transition-all duration-200 " +
                                 (copied
                                   ? "bg-green-500 hover:bg-green-600 text-white"
                                   : "")
@@ -275,8 +276,9 @@ export default function HomePage() {
                       <motion.div
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
+                        className="flex-1 sm:flex-none"
                       >
-                        <Button asChild variant="outline" className="px-6 py-2">
+                        <Button asChild variant="outline" className="w-full sm:w-auto px-4 sm:px-6 py-2">
                           <Link
                             href={generatedLink}
                             target="_blank"
